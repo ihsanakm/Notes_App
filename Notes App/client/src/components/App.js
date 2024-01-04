@@ -1,14 +1,13 @@
-import { useEffect, useState, useContext} from "react";
-import Note from "./Note";
-import LogInPage from "../pages/logInPage";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { RequireAuth } from "./RequireAuth";
-import { authContext } from "./RequireAuth";
+import Note from "./Note";
+import LogInPage from "../pages/logInPage";
+import { AuthProvider } from "./auth";
 
 function App() {
-
   return (
     <div className="App">
+      <AuthProvider>
       <BrowserRouter>
         <NavLink
           to="/"
@@ -24,14 +23,22 @@ function App() {
             isPending ? "pending" : isActive ? "active" : ""
           }
         >
-          log In
+          Log In
         </NavLink>
 
         <Routes>
-          <Route index element={<RequireAuth><Note /></RequireAuth>} />
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <Note />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<LogInPage />} />
         </Routes>
       </BrowserRouter>
+      </AuthProvider>
     </div>
   );
 }

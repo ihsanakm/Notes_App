@@ -1,10 +1,12 @@
 // LoginForm.js
 import axios from "axios";
-import React, { useContext, useState } from "react";
-import { authContext } from "./RequireAuth";
+import { useState } from "react";
+import { useAuth } from "./auth";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-  const { logedIn, updateLogedIn} = useContext(authContext);
+  const auth = useAuth()
+  const navigate = useNavigate()
 
   const [logIn, setLogIn] = useState({
     email: "",
@@ -24,18 +26,16 @@ function LoginForm() {
     try {
       const res = await axios.post("/login", logIn, { withCredentials: true });
       console.log(res);
-      console.log("from login form", logedIn);
+      auth.login(logIn)
+      navigate('/')
 
-      updateLogedIn();
-      console.log("from login form", logedIn);
-
-      // Add any further logic to handle the response, e.g., redirecting to another page
     } catch (error) {
       console.error("Error during login:", error);
     }
   }
 
-  return logedIn ? "" : (
+  // Render the LoginForm component
+  return (
     <div>
       <form onSubmit={handleLogInSubmit}>
         <input

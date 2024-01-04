@@ -1,40 +1,41 @@
-
-import React, { useContext } from "react";
-import { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import NoteItem from "./NoteItem";
 import Button from "./Button";
 import NoteForms from "./NoteForms";
-import { authContext } from "./RequireAuth";
-
+import { useAuth } from "./auth";
+import { useNavigate } from "react-router-dom";
 
 function Note() {
 
-  const {logedIn}=useContext(authContext)
-
+  const auth = useAuth();
+  const navigate = useNavigate();
 
   const [newNote, setNewNote] = useState({
     title: "",
     body: "",
   });
-
   const [notes, setNotes] = useState([]);
-
-  //useEffect
-  useEffect(() => {
-    fetchNotes();
-  }, []);
-
-  //update notes
   const [updateNote, setUpdateNote] = useState({
     id: null,
     title: "",
     body: "",
   });
 
+  useEffect(() => {
+    // Fetch data only when logged in
+ 
+      fetchNotes();
+    })
+ 
+
   const fetchNotes = async () => {
-    const res = await axios.get("/note");
-    setNotes(res.data.note);
+    try {
+      const res = await axios.get("/note");
+      setNotes(res.data.note);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
   };
 
   const handleChange = (e) => {
@@ -49,31 +50,33 @@ function Note() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await axios.post("/note", newNote);
-
-    setNotes([...notes, res.data.Note]);
-    setNewNote({
-      title: "",
-      body: "",
-    });
-    console.log(res.data.note);
+    try {
+      const res = await axios.post("/note", newNote);
+      setNotes([...notes, res.data.Note]);
+      setNewNote({
+        title: "",
+        body: "",
+      });
+      console.log(res.data.note);
+    } catch (error) {
+      console.error("Error creating note:", error);
+    }
   };
 
   const handleDelete = async (id) => {
-    //delete note
-    const res = await axios.delete(`/delete/${id}`);
-
-    //update notes
-    setNotes(
-      [...notes].filter((note) => {
-        return note._id !== id;
-      })
-    );
-    //or we can use fetchNotes();
+    try {
+      const res = await axios.delete(`/delete/${id}`);
+      setNotes(
+        [...notes].filter((note) => {
+          return note._id !== id;
+        })
+      );
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
   };
 
   const handleUpdate = (note) => {
-    //update note fields
     setUpdateNote({
       id: note._id,
       title: note.title,
@@ -81,21 +84,22 @@ function Note() {
     });
   };
 
-  // update form handleing
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    const res = await axios.put(`/update/${updateNote.id}`, {
-      title: updateNote.title,
-      body: updateNote.body,
-    });
-    setUpdateNote({
-      id: null,
-      title: "",
-      body: "",
-    });
-
-    //update notes
-    fetchNotes();
+    try {
+      const res = await axios.put(`/update/${updateNote.id}`, {
+        title: updateNote.title,
+        body: updateNote.body,
+      });
+      setUpdateNote({
+        id: null,
+        title: "",
+        body: "",
+      });
+      fetchNotes();
+    } catch (error) {
+      console.error("Error updating note:", error);
+    }
   };
 
   const handleUpdateChange = (e) => {
@@ -107,18 +111,24 @@ function Note() {
     });
   };
 
+  const handleLogout = () => {
+    auth.logout();
+    navigate('/login');
+  }
+
   return (
-    logedIn ? ( <div>
-      {notes.map((note) => (
-        <>
-          <NoteItem note={note} />
-          <Button
-            note={note}
-            handleDelete={handleDelete}
-            handleUpdate={handleUpdate}
-          />
-        </>
-      ))}
+    <div>
+      {
+        notes.map((note) => (
+          <React.Fragment key={note._id}>
+            <NoteItem note={note} />
+            <Button
+              note={note}
+              handleDelete={handleDelete}
+              handleUpdate={handleUpdate}
+            />
+          </React.Fragment>
+        )) }  
       <NoteForms
         newNote={newNote}
         updateNote={updateNote}
@@ -127,8 +137,8 @@ function Note() {
         handleChange={handleChange}
         handleSubmit={handleSubmit}
       />
+      <button onClick={handleLogout}>log out</button>
     </div>
-   ) : ""
   );
 }
 

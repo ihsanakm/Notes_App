@@ -1,21 +1,18 @@
-import React, { createContext, useState } from 'react';
+// RequireAuth.js
 
-const authContext = createContext();
+import { Navigate } from "react-router-dom";
+import { useAuth } from "./auth";
+
+function RequireAuth({ children }) {
+  const auth = useAuth();
 
 
-function RequireAuth({children}) {
-    const [logedIn, setLogedIn] = useState(false)
+  if(!auth.user){
+    return <Navigate to='/login' />
+  }
 
-    const updateLogedIn = () => {
-        setLogedIn(true)
-        console.log("i am called")
-    }
+  return children
 
-    return (
-        <authContext.Provider value={{logedIn , updateLogedIn}}>
-            {children}
-        </authContext.Provider>
-    );
 }
 
-export {RequireAuth, authContext} ;
+export { RequireAuth };

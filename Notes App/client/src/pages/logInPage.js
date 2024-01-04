@@ -6,9 +6,7 @@ function LogInPage() {
     return (
         <div>
            <h2>Login</h2>
-           <RequireAuth>
            <LoginForm /> 
-           </RequireAuth>
         </div>
     );
 }
