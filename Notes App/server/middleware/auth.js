@@ -1,27 +1,36 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 
-async function requireAuth(req, res, next){
-//Read the token
-const token = req.cookies.autherization;
- 
-//Decode the token
-var decoded = jwt.verify(token, process.env.SECRET);
+async function requireAuth(req, res, next) {
+  try {
+    // Read the token
+    const token = req.cookies.Authorization;
 
-//check expiration
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized - Token not provided' });
+    }
 
-if(Date.now() > decoded.expiresIn) return res.sendStatus(401);
+    // Decode the token
+    const decoded = jwt.verify(token, process.env.SECRET);
 
-//Find the user
-const user = await User.findById(decoded.sub);
-if(!user) return res.sendStatus(401)
+    // Check expiration
+    if (Date.now() > decoded.exp * 1000) {
+      return res.status(401).json({ message: 'Unauthorized - Token has expired' });
+    }
 
-//attach the use to req
-req.user = user;
-res.sendStatus(200)
+    // Find the user
+    const user = await User.findById(decoded.sub);
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized - User not found' });
+    }
 
-//continue
-next();
+    // Attach the user to req
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Error during token verification:', error);
+    return res.status(401).json({ message: 'Unauthorized - Invalid token' });
+  }
 }
 
 module.exports = requireAuth;

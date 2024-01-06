@@ -3,8 +3,10 @@ import { RequireAuth } from "./RequireAuth";
 import Note from "./Note";
 import LogInPage from "../pages/logInPage";
 import { AuthProvider } from "./auth";
+import SigninPage from "../pages/signinPage";
 
 function App() {
+
   return (
     <div className="App">
       <AuthProvider>
@@ -25,6 +27,15 @@ function App() {
         >
           Log In
         </NavLink>
+        <NavLink
+          to="/signup"
+          className={({ isActive, isPending }) =>
+            isPending ? "pending" : isActive ? "active" : ""
+          }
+        >
+          Sign Up
+        </NavLink>
+
 
         <Routes>
           <Route
@@ -36,6 +47,8 @@ function App() {
             }
           />
           <Route path="/login" element={<LogInPage />} />
+          <Route path="/signup" element={<SigninPage />} />
+
         </Routes>
       </BrowserRouter>
       </AuthProvider>

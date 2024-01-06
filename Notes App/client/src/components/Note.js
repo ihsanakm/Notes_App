@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import axios from "axios";
 import NoteItem from "./NoteItem";
 import Button from "./Button";
@@ -22,22 +22,23 @@ function Note() {
     body: "",
   });
 
-  useEffect(() => {
+  useEffect(() => { 
     // Fetch data only when logged in
- 
+    // if (auth.isAuthenticated()) {
+    //   console.log(auth.isAuthenticated())
       fetchNotes();
-    })
- 
+    }
+  ) //[auth.isAuthenticated]); // Add isAuthenticated as a dependency
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get("/note");
+      const res = await axios.get("/note", { withCredentials: true });
       setNotes(res.data.note);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -51,7 +52,7 @@ function Note() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/note", newNote);
+      const res = await axios.post("/note", newNote, { withCredentials: true });
       setNotes([...notes, res.data.Note]);
       setNewNote({
         title: "",
@@ -65,7 +66,7 @@ function Note() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await axios.delete(`/delete/${id}`);
+      await axios.delete(`/delete/${id}`);
       setNotes(
         [...notes].filter((note) => {
           return note._id !== id;
@@ -87,10 +88,10 @@ function Note() {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`/update/${updateNote.id}`, {
+      await axios.put(`/update/${updateNote.id}`, {
         title: updateNote.title,
         body: updateNote.body,
-      });
+      }, { withCredentials: true });
       setUpdateNote({
         id: null,
         title: "",

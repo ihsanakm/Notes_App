@@ -11,12 +11,15 @@ var requireAuth = require('./middleware/auth')
 
 const app = express();
 
-app.use(express.json());
+
 app.use(cors({
   origin:true,
-  credentials: true
+  credentials: true,
 }))
-app.use(cookieParser())
+app.use(express.json());
+app.use(cookieParser());
+
+
 
 
 connectToDb();
@@ -27,16 +30,17 @@ app.get("/logout", usersRoute.logout);
 app.get("/check-auth", requireAuth, usersRoute.checkAuth);
 
 
+app.get("/note", requireAuth, noteRoutes.getNotes);
 
-app.get("/note", noteRoutes.getNotes);
+app.post("/note", requireAuth, noteRoutes.createNote);
+
+app.put("/update/:id", requireAuth, noteRoutes.updateNote);
+
+
 
 app.get("/note/:id", noteRoutes.getNote );
 
-app.post("/note", noteRoutes.createNote );
-
-app.put("/update/:id", noteRoutes.updateNote );
-
-app.delete("/delete/:id", noteRoutes.deleteNote );
+app.delete("/delete/:id", noteRoutes.deleteNote);
 
 app.listen(process.env.PORT, () => {
   console.log(`I am working on ${process.env.PORT}`);

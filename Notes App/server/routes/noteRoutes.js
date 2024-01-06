@@ -39,8 +39,22 @@ const updateNote = async (req, res) => {
 
 const deleteNote = async (req, res) => {
   const id = req.params.id;
-  await Note.findOneAndDelete(id);
-  res.json({ Message: "Successfully Deleted" });
+
+  try {
+
+    // Use the id to delete the note
+    const deletedNote = await Note.findOneAndDelete({ _id: id });
+    if (!deletedNote) {
+      // If the note with the specified id is not found
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    // Send a response with a confirmation message
+    res.json({ message: `Successfully deleted note with id: ${id}` });
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 module.exports = {
