@@ -1,12 +1,13 @@
 // LoginForm.js
 import axios from "axios";
 import { useState } from "react";
-import { useAuth } from "./auth";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {userLoggedIn } from "./redux/userAction";
 
 function LoginForm() {
-  const auth = useAuth()
   const navigate = useNavigate()
+  const dispatch = useDispatch();
 
   const [logIn, setLogIn] = useState({
     email: "",
@@ -24,9 +25,8 @@ function LoginForm() {
   async function handleLogInSubmit(e) {
     e.preventDefault();
     try {
-      const res = await axios.post("/login", logIn, { withCredentials: true });
-      console.log(res);
-      auth.login(logIn)
+      await axios.post("/login", logIn, { withCredentials: true });
+      dispatch(userLoggedIn())
       navigate('/')
 
     } catch (error) {

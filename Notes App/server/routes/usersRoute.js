@@ -56,11 +56,12 @@ async function login(req, res) {
     }
 }
 
-function logout(req, res) {
+async function logout(req, res) {
     try {
-        // Implementation for logout
-        res.clearCookie('Authorization');
-        res.sendStatus(200);
+        // Clear Cookie
+        res.clearCookie('Authorization', { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'lax' });
+        // Send a response indicating successful logout
+        res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
         console.error('Error during Logout:', error);
         // Handle the error appropriately, e.g., send an error response
@@ -72,7 +73,7 @@ function checkAuth(req, res) {
     try {
         if (req.user) {
             // If the user is authenticated, you can send additional user data if needed
-            res.status(200).json({ user: req.user });
+            res.sendStatus(200);
         } else {
             // If the user is not authenticated
             res.sendStatus(401); // Unauthorized

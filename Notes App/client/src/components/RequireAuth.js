@@ -1,23 +1,25 @@
 // RequireAuth.js
 
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { userCheck } from './redux/userAction';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './auth';
 
-function RequireAuth({ children }) {
-  const auth = useAuth();
+const RequireAuth = ({ children }) => {
+  const isAuthenticated = useSelector(state => state.user);
+  const dispatch = useDispatch(); // Invoke dispatch as a function
 
-  // Check for stored authentication information on component mount
-  if (!auth.user) {
-    const storedToken = localStorage.getItem('Authorization');
-    if (storedToken) {
-      // Rehydrate the user authentication state based on the stored token
-      auth.login({ token: storedToken });
-    } else {
-      return <Navigate to="/login" />;
+  useEffect(() => {
+    if (isAuthenticated === null) {
+      dispatch(userCheck())
     }
+  }); // Added dependency array to useEffect
+
+  if (isAuthenticated===false) {
+    return <Navigate to="/login" />
   }
 
-  return children;
-}
+  return <div>{children}</div>;
+};
 
-export { RequireAuth };
+export default RequireAuth;

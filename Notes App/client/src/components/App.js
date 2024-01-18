@@ -1,15 +1,13 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
-import { RequireAuth } from "./RequireAuth";
 import Note from "./Note";
 import LogInPage from "../pages/logInPage";
-import { AuthProvider } from "./auth";
 import SigninPage from "../pages/signinPage";
+import RequireAuth  from "./RequireAuth";
 
 function App() {
 
   return (
     <div className="App">
-      <AuthProvider>
       <BrowserRouter>
         <NavLink
           to="/"
@@ -51,7 +49,6 @@ function App() {
 
         </Routes>
       </BrowserRouter>
-      </AuthProvider>
     </div>
   );
 }

@@ -1,15 +1,17 @@
-import React, {  useEffect, useState } from "react";
+import React, {   useState } from "react";
 import axios from "axios";
 import NoteItem from "./NoteItem";
 import Button from "./Button";
 import NoteForms from "./NoteForms";
-import { useAuth } from "./auth";
 import { useNavigate } from "react-router-dom";
+import { useSelector,useDispatch } from "react-redux";
+import { userLoggedOut } from "./redux/userAction";
 
 function Note() {
 
-  const auth = useAuth();
   const navigate = useNavigate();
+  const user = useSelector((state)=>state.user)
+  const dispatch = useDispatch();
 
   const [newNote, setNewNote] = useState({
     title: "",
@@ -22,13 +24,11 @@ function Note() {
     body: "",
   });
 
-  useEffect(() => { 
+
     // Fetch data only when logged in
     // if (auth.isAuthenticated()) {
     //   console.log(auth.isAuthenticated())
-      fetchNotes();
-    }
-  ) //[auth.isAuthenticated]); // Add isAuthenticated as a dependency
+  //[auth.isAuthenticated]); // Add isAuthenticated as a dependency
 
   const fetchNotes = async () => {
     try {
@@ -38,6 +38,9 @@ function Note() {
       console.error("Error fetching notes:", error);
     }
   };
+
+  fetchNotes();
+
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -112,35 +115,48 @@ function Note() {
     });
   };
 
-  const handleLogout = () => {
-    auth.logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try{
+      await axios.get("/logout",{withCredentials:true})
+      dispatch(userLoggedOut())
+      navigate('/login'); 
+    }catch (err){
+    console.log(err)
+    }
   }
 
   return (
-    <div>
-      {
-        notes.map((note) => (
-          <React.Fragment key={note._id}>
-            <NoteItem note={note} />
-            <Button
-              note={note}
-              handleDelete={handleDelete}
-              handleUpdate={handleUpdate}
-            />
-          </React.Fragment>
-        )) }  
-      <NoteForms
-        newNote={newNote}
-        updateNote={updateNote}
-        handleUpdateChange={handleUpdateChange}
-        handleUpdateSubmit={handleUpdateSubmit}
-        handleChange={handleChange}
-        handleSubmit={handleSubmit}
-      />
-      <button onClick={handleLogout}>log out</button>
-    </div>
+    <>
+      {user && (
+        <div>
+          {notes.map((note) => (
+            <React.Fragment key={note._id}>
+              <NoteItem note={note} />
+              <Button
+                note={note}
+                handleDelete={handleDelete}
+                handleUpdate={handleUpdate}
+              />
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+  
+      {user && (
+        <div>
+          <NoteForms
+            newNote={newNote}
+            updateNote={updateNote}
+            handleUpdateChange={handleUpdateChange}
+            handleUpdateSubmit={handleUpdateSubmit}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+          <button onClick={handleLogout}>log out</button>
+        </div>
+      )}
+    </>
   );
-}
+    }
 
 export default Note;
