@@ -3,13 +3,14 @@ import Note from "./Note";
 import LogInPage from "../pages/logInPage";
 import SigninPage from "../pages/signinPage";
 import RequireAuth from "./RequireAuth";
-import NavigationBar from "./NavBar";
+import NavigationBar from "./NavigationBar";
 
 function App() {
   return (
     <div className="App">
       <>
           <NavigationBar />
+
           <Routes>
             <Route
               path="/"
